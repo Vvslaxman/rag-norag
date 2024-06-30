@@ -139,6 +139,7 @@ def process_input():
             distances, indices = st.session_state["index"].search(query_embedding, k=3)
             docs = [st.session_state["chunks"][idx] for idx in indices[0]]
             context = "\n\n".join(docs)
+            huggingfacehub_api_token =st.secrets['HUGGINGFACEHUB_API_TOKEN']
             huggingfacehub_api_token = os.getenv("HUGGINGFACEHUB_API_TOKEN")
 
             if not huggingfacehub_api_token:
