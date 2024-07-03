@@ -91,7 +91,7 @@ streamlit run app.py
 
 ### RAG Implementation (with FastEmbedEmbeddings)
 
-![Result with RAG](ChatPDF/results/with-rag3.png)
+![Result with RAG](ChatPDF/mistral.png)
 
 
 ### Without RAG (using Hugging Face Hub)
