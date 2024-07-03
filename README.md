@@ -40,7 +40,6 @@ ChatPDF is a project designed to explore and implement various Language Model (L
 - scikit-learn
 - Streamlit Extras
 - Dotenv
-- NumPy
 - Pickle
   
 ## Installation
@@ -126,7 +125,6 @@ Contributions are welcome! Please fork the repository, create a feature branch, 
 - **Streamlit**: Framework for building interactive web applications.
 - **PyPDF2**: PDF file processing library.
 - **Faiss**: Efficient similarity search and clustering of dense vectors used in code without RAG implementation .
-- **NumPy**: Fundamental package for scientific computing with Python.
 - **ChromaDB**: Vector store for fast and scalable vector similarity search.
 - **ChatOllama**: Framework for building conversational agents.
 - **Ollama's Mistral Model**: LLM used for question-answering tasks.
