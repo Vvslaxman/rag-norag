@@ -79,14 +79,14 @@ streamlit run app.py
    - Ask questions related to the content of the uploaded PDF.
 ### Switching Between Implementations
 
-- **Local RAG Implementation (FastEmbedEmbeddings)**:
-  - Comment lines from 88 to 223 in `app.py`.
-  - Uncomment lines from 2 to 85 in `app.py`.
+> **Local RAG Implementation (FastEmbedEmbeddings)**:
+  - UnComment lines from 2 to 88 in `app.py`.
+  - Uncomment lines from 2 to 61 in `rag.py`.
 
-- **Local RAG Implementation (Hugging Face Hub)**:
-  - Comment lines from 2 to 85 in `app.py`.
-  - Uncomment lines from 88 to 223 in `app.py`.
-
+> **Local RAG Implementation (Hugging Face Hub)**:
+  - UnComment lines from 91 to 228 in `app.py`.
+  - Uncomment lines from 67 to 137 in `rag.py`.
+# For one implementation to be performed comment those above mentioned lines of other implementation and uncomment which approach you wanna use.
 ## Results
 
 ### RAG Implementation (with FastEmbedEmbeddings)
@@ -96,7 +96,7 @@ streamlit run app.py
 
 ### Without RAG (using Hugging Face Hub)
 
-![Result without RAG](ChatPDF/results/no-rag2.png)
+![Result without RAG](ChatPDF/hfh.png)
 
 ## Code Structure
 
