@@ -82,7 +82,7 @@ streamlit run app.py
 > **Local RAG Implementation (Hugging Face Hub)**:
   - UnComment lines from 91 to 228 in `app.py`.
   - Uncomment lines from 67 to 137 in `rag.py`.
-# For one implementation to be performed comment those above mentioned lines of other implementation and uncomment which approach you wanna use.
+# For one implementation to be performed comment those above mentioned lines of other implementation and uncomment required accordingly .
 ## Results
 
 ### RAG Implementation (with FastEmbedEmbeddings)
