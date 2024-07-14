@@ -7,7 +7,7 @@ ChatPDF is a project designed to explore and implement various Language Model (L
 # 1)  Retrieval-Augmented Generation (RAG):
 
    - Local RAG Implementation: Uses FastEmbedEmbeddings for local embedding and retrieval.
-   - Vector Store: Utilizes ChromaDB for storing and retrieving document embeddings based on similarity scores.
+   - Vector Store: Utilizes ChromaDB and Faiss-cpu for storing and retrieving document embeddings based on similarity scores.
 # 2)  Hugging Face Hub Integration:
 
    - Implements LLMs using models from Hugging Face Hub, specifically the google/flan-t5-large model for efficient and accurate response generation.
