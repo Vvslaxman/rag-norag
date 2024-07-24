@@ -128,6 +128,7 @@ Contributions are welcome! Please fork the repository, create a feature branch, 
 - **LLMChain**: For chaining LLMs in the processing pipeline.
 - **Scikit-learn**: Machine learning library for the TfidfVectorizer used in embedding generation.
 - **Pickle**: Python module for serializing and deserializing Python object structures, used for saving and loading model data.
+- **Paper Inspiration** : [RAG For knowledge-Intensive NLP Tasks](https://arxiv.org/abs/2005.11401) 
 
 ## Contact
 
