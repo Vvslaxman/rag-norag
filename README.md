@@ -113,7 +113,7 @@ Defines the `ChatPDF` class utilizing LangChain components for PDF ingestion, te
 
 ## Contributing
 
-Contributions are welcome! Please fork the repository, create a feature branch, commit your changes, and submit a pull request.
+Contributions are welcome! Please fork the repository, create a feature branch, commit your changes, and submit a pull request!
 
 ## Acknowledgements
 
