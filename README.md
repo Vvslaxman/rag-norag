@@ -71,7 +71,7 @@ streamlit run app.py
 ```
 ### 2. PDF Ingestion and Querying:
 
-   - Upload a PDF document through the provided interface.
+   - Upload any PDF document through the provided interface.
    - Ask questions related to the content of the uploaded PDF.
 ### Switching Between Implementations
 
