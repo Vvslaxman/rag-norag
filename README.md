@@ -10,7 +10,7 @@
 [![HuggingFace](https://img.shields.io/badge/HuggingFace-Flan--T5-red)](https://huggingface.co/google/flan-t5-large)
 [![license](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
 
-[Architecture](#architecture)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Setup](#setup)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Usage](#usage)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Results](#results)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Contributing](#contributing)
+[Architecture](#architecture)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Setup](#setup)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Environment Variables](#environment-variables)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Usage](#usage)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Testing](#testing)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Results](#results)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Contributing](#contributing)
 
 </div>
 
@@ -52,94 +52,117 @@ This project enables side-by-side comparisons of:
 
 ### ✅ **Prerequisites**
 - Python `3.10+`
-- Install required dependencies:
+- Clone the repository:
+
+```bash
+git clone https://github.com/Vvslaxman/rag-norag
+cd rag-vs-nonrag-chatbot
+
+
+# RAG vs Non-RAG Chatbot
+
+## 📦 Installation
+
+Install required dependencies:
+
 ```bash
 pip install -r requirements.txt
+```
 
-✅ Environment Variables
-Create a .env file with the following:
+## 🔑 Environment Variables
 
-ini
-Copy
-Edit
-OPENAI_API_KEY=<your_api_key>
-HUGGINGFACEHUB_API_TOKEN=<your_hf_token>
-🔥 Usage
-✅ Running the Chatbot
-To start the chatbot:
+Create a `.env` file in the root directory with the following variables:
 
-bash
-Copy
-Edit
-python app.py
-Access the web interface at:
+```ini
 
-arduino
-Copy
-Edit
-http://localhost:8501
-✅ Testing the Pipelines
-You can compare the RAG and Non-RAG pipelines:
+# Hugging Face API Token
+HUGGINGFACEHUB_API_TOKEN=<your_huggingface_api_token>
 
-bash
-Copy
-Edit
-python test.py --query "What is LangChain?"
-RAG pipeline retrieves context from FAISS and generates a context-aware response.
+# ChromaDB Configuration
+CHROMA_DB_HOST=localhost
+CHROMA_DB_PORT=8000
+CHROMA_COLLECTION=rag_data
 
-Non-RAG pipeline uses direct LLM inference.
+# FAISS Configuration
+FAISS_INDEX_PATH=./faiss_index
 
-📊 Results
-✅ Performance Metrics
-Metric	RAG Pipeline	Non-RAG Pipeline
-Response Time	1.2 sec (w/ retrieval)	0.9 sec (direct LLM)
-Contextual Relevance	✅ Higher accuracy	❌ Lower accuracy
-Knowledge Coverage	✅ External context usage	❌ Limited to LLM knowledge
-🛠️ Contributing
-We welcome contributions! 🎉 To contribute:
+# FastEmbed Configuration
+FASTEMBED_MODEL=all-MiniLM-L6-v2
+```
 
-Fork the repository.
+## 🚀 Usage
 
-Create a new branch: git checkout -b feature-branch
+### ✅ Start the Chatbot
 
-Make your changes and commit: git commit -m "Add new feature"
+To start the chatbot, run:
 
-Push the branch: git push origin feature-branch
+```bash
+streamlit run app.py
+```
 
-Create a pull request.
+### ✅ Interacting with the Chatbot
 
-📚 Documentation
-For detailed documentation, visit:
+Once running:
 
-LangChain Documentation
+- Open your browser and navigate to `http://localhost:5000`
+- Enter a query in the chatbot UI
+- Select either RAG or Non-RAG mode
+- Compare the results side by side
 
-FAISS GitHub
+## 🧪 Testing
 
-ChromaDB
+### ✅ Run Unit Tests
 
-Hugging Face
+To ensure everything is working properly, run the testing script:
 
-📧 Contact
-For inquiries, reach out at:
+```bash
+python test.py
+```
 
-📩 Email: your_email@example.com
+## 🛠️ Folder Structure
 
-📢 GitHub Issues: Open an issue
+```
+📁 RAG-vs-NonRAG-Chatbot
+ ├── 📁 assets             # Architecture diagrams, images
+ ├── 📁 data               # Sample documents for RAG
+ ├── 📁 models             # Pre-trained LLM models
+ ├── 📁 src                # Source code
+ │      ├── rag_pipeline.py
+ │      ├── non_rag_pipeline.py
+ │      └── app.py
+ ├── .env                  # Environment variables
+ ├── benchmark.py          # Benchmarking script
+ ├── requirements.txt      # Dependencies
+ ├── README.md             # Project documentation
+ └── LICENSE               # License file
+```
 
-<div align="center"> 🚀 **Empower your chatbot with RAG for contextual brilliance!** </div> ```
-✅ Key Features Included
-Header with badges: Displaying key libraries, versions, and links.
+## 🤝 Contributing
 
-Architecture diagram: Visual representation of the RAG and Non-RAG pipelines.
+Contributions are welcome! To contribute:
 
-Setup instructions: Detailed installation steps and environment variable configuration.
+1. Fork the repository.
+2. Create a new branch:
+   ```bash
+   git checkout -b feature/your-feature
+   ```
+3. Commit your changes:
+   ```bash
+   git commit -m 'Add new feature'
+   ```
+4. Push to the branch:
+   ```bash
+   git push origin feature/your-feature
+   ```
+5. Create a Pull Request.
 
-Usage instructions: Commands to run and test both pipelines.
+## 📜 License
 
-Results table: Side-by-side performance comparison.
+This project is licensed under the MIT License. See the `LICENSE` file for details.
 
-Contributing section: Steps for collaboration.
+## 📬 Contact
 
-Documentation links: References for further exploration.
+For any issues or questions, feel free to open an issue or reach out at:
 
-Contact details: For inquiries and support.
+- **GitHub**: [Vvslaxman](https://github.com/Vvslaxman)
+- **Email**: vvslaxman14@gmail.com
