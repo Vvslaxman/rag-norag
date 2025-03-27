@@ -1,136 +1,168 @@
-# ChatPDF
+<div align="center">
 
-ChatPDF is a project designed to explore and implement various Language Model (LLM) architectures and techniques, focusing on Retrieval-Augmented Generation (RAG) and different embedding strategies. It includes implementations using local RAG with FastEmbedEmbeddings and a version with RAG using Hugging Face Hub for embeddings.
+# 🔥 RAG vs Non-RAG Chatbot 
+### 🛠️ A Comparative Framework for Optimized LLM Query Handling
 
-## Features
+[![python](https://img.shields.io/badge/python-3.10-blue)](https://www.python.org/downloads/release/python-31012/)
+[![langchain](https://img.shields.io/badge/langchain-0.1.4-brightgreen)](https://www.langchain.com/)
+[![chroma](https://img.shields.io/badge/chroma-0.4.15-orange)](https://www.trychroma.com/)
+[![FAISS](https://img.shields.io/badge/faiss-1.7.4-yellow)](https://github.com/facebookresearch/faiss)
+[![HuggingFace](https://img.shields.io/badge/HuggingFace-Flan--T5-red)](https://huggingface.co/google/flan-t5-large)
+[![license](https://img.shields.io/badge/license-MIT-blue)](./LICENSE)
 
-# 1)  Retrieval-Augmented Generation (RAG):
+[Architecture](#architecture)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Setup](#setup)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Environment Variables](#environment-variables)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Usage](#usage)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Testing](#testing)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Results](#results)&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;[Contributing](#contributing)
 
-   - Local RAG Implementation: Uses FastEmbedEmbeddings for local embedding and retrieval.
-   - Vector Store: Utilizes ChromaDB and Faiss-cpu for storing and retrieving document embeddings based on similarity scores.
-# 2)  Hugging Face Hub Integration:
+</div>
 
-   - Implements LLMs using models from Hugging Face Hub, specifically the google/flan-t5-large model for efficient and accurate response generation.
-# 3)  PDF Ingestion and Processing:
+---
 
-   - Allows users to upload PDF documents, which are then processed to extract text.
-   - The extracted text is split into manageable chunks using RecursiveCharacterTextSplitter.
-# 4) Interactive Chat Interface:
+## 🚀 Overview
 
-   - Provides a user-friendly interface for uploading documents and querying their content.
-   - Users can ask questions related to the uploaded PDF documents and receive concise, relevant answers.
-# 5) Visual Feedback:
+The **RAG vs Non-RAG Chatbot** framework demonstrates the performance and accuracy differences between:
+- **RAG (Retrieval-Augmented Generation)**: Enhances LLM responses with contextually relevant external knowledge. Utilizes **ChromaDB** for vector storage and **FAISS** for retrieval.
+- **Non-RAG**: Direct LLM-based answering without retrieval. Uses **Flan-T5** hosted on **Hugging Face**.
 
-   - Incorporates spinners and other visual indicators to show processing progress during document ingestion and query handling.
-## Requirements
+This project enables side-by-side comparisons of:
+- Response accuracy
+- Latency and efficiency
+- Contextual relevance with/without retrieval
 
-- Python 3.6+
-- Streamlit
-- LangChain
-- PyPDF2
-- Faiss
-- Chromadb
-- ChatOllama
-- Mistral
-- HuggingFaceHub
-- LLMChain
-- scikit-learn
-- Streamlit Extras
-- Dotenv
-- Pickle
-  
-## Installation
+---
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your_username/ChatPDF.git
-   cd ChatPDF
-   ```
+## ⚙️ Architecture
 
-2. Install dependencies:
-   You can add the entire Tech stack/Requirements in a requirements.txt file :
-   ```bash 
-   pip install -r requirements.txt
-   ```
+<div align="center">
+<img src="./assets/architecture.png" width="80%">
+</div>
 
-3. Set up environment variables:
-   - Create a `.env` file in the project root directory.
-   - Add your Hugging Face Hub API token:
-     ```
-     HUGGINGFACEHUB_API_TOKEN=your_api_token_here
-     ```
+### 🛠️ **Components**
+1. **RAG Pipeline**
+   - Embedding Model: `fastembed` for text embedding.
+   - Vector Store: `ChromaDB` with `FAISS` backend.
+   - Retrieval: Query similarity search with top-k matching.
+   - LLM: `ChatOllama` for generating responses based on retrieved context.
+   
+2. **Non-RAG Pipeline**
+   - Direct querying with `Flan-T5` hosted on Hugging Face.
+   - No external knowledge retrieval.
 
-## Usage
+---
 
-### 1. Running the App
+## 🛠️ Setup
 
-To run the ChatPDF application:
+### ✅ **Prerequisites**
+- Python `3.10+`
+- Clone the repository:
+
+```bash
+git clone https://github.com/Vvslaxman/rag-norag
+cd rag-vs-nonrag-chatbot
+
+
+# RAG vs Non-RAG Chatbot
+
+## 📦 Installation
+
+Install required dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+## 🔑 Environment Variables
+
+Create a `.env` file in the root directory with the following variables:
+
+```ini
+
+# Hugging Face API Token
+HUGGINGFACEHUB_API_TOKEN=<your_huggingface_api_token>
+
+# ChromaDB Configuration
+CHROMA_DB_HOST=localhost
+CHROMA_DB_PORT=8000
+CHROMA_COLLECTION=rag_data
+
+# FAISS Configuration
+FAISS_INDEX_PATH=./faiss_index
+
+# FastEmbed Configuration
+FASTEMBED_MODEL=all-MiniLM-L6-v2
+```
+
+## 🚀 Usage
+
+### ✅ Start the Chatbot
+
+To start the chatbot, run:
 
 ```bash
 streamlit run app.py
 ```
-### 2. PDF Ingestion and Querying:
 
-   - Upload any PDF document through the provided interface.
-   - Ask questions related to the content of the uploaded PDF.
-### Switching Between Implementations
+### ✅ Interacting with the Chatbot
 
-> **Local RAG Implementation (FastEmbedEmbeddings)**:
-  - UnComment lines from 2 to 88 in `app.py`.
-  - Uncomment lines from 2 to 61 in `rag.py`.
+Once running:
 
-> **Local RAG Implementation (Hugging Face Hub)**:
-  - UnComment lines from 91 to 228 in `app.py`.
-  - Uncomment lines from 67 to 137 in `rag.py`.
-# For one implementation to be performed comment those above mentioned lines of other implementation and uncomment required accordingly .
-## Results
+- Open your browser and navigate to `http://localhost:5000`
+- Enter a query in the chatbot UI
+- Select either RAG or Non-RAG mode
+- Compare the results side by side
 
-### RAG Implementation (with FastEmbedEmbeddings)
+## 🧪 Testing
 
-![Result with RAG](mistral.png)
+### ✅ Run Unit Tests
 
+To ensure everything is working properly, run the testing script:
 
-### Without RAG (using Hugging Face Hub)
+```bash
+python test.py
+```
 
-![Result without RAG](hfh.png)
+## 🛠️ Folder Structure
 
-## Code Structure
+```
+📁 RAG-vs-NonRAG-Chatbot
+ ├── 📁 assets             # Architecture diagrams, images
+ ├── 📁 data               # Sample documents for RAG
+ ├── 📁 models             # Pre-trained LLM models
+ ├── 📁 src                # Source code
+ │      ├── rag_pipeline.py
+ │      ├── non_rag_pipeline.py
+ │      └── app.py
+ ├── .env                  # Environment variables
+ ├── benchmark.py          # Benchmarking script
+ ├── requirements.txt      # Dependencies
+ ├── README.md             # Project documentation
+ └── LICENSE               # License file
+```
 
-- `app.py`: Main application file controlling the Streamlit interface and logic.
-- `rag.py`: Contains the `ChatPDF` class implementing local RAG with FastEmbedEmbeddings.
-- `results/`: Directory containing result images.
-- `__pycache__/`, `.pkl` files, `run.sh`, `pyproject.toml`: Supporting files and artifacts.
+## 🤝 Contributing
 
-## Detailed Code Overview
+Contributions are welcome! To contribute:
 
-### `app.py`
+1. Fork the repository.
+2. Create a new branch:
+   ```bash
+   git checkout -b feature/your-feature
+   ```
+3. Commit your changes:
+   ```bash
+   git commit -m 'Add new feature'
+   ```
+4. Push to the branch:
+   ```bash
+   git push origin feature/your-feature
+   ```
+5. Create a Pull Request.
 
-This file initializes the Streamlit application, handles PDF ingestion, text processing, embeddings generation, and user interactions. It integrates with Hugging Face Hub for LLM and provides an interface to switch between RAG implementations.
+## 📜 License
 
-### `rag.py`
+This project is licensed under the MIT License. See the `LICENSE` file for details.
 
-Defines the `ChatPDF` class utilizing LangChain components for PDF ingestion, text splitting, embedding generation with FastEmbedEmbeddings, and local RAG implementation.
+## 📬 Contact
 
-## Contributing
+For any issues or questions, feel free to open an issue or reach out at:
 
-Contributions are welcome! Please fork the repository, create a feature branch, commit your changes, and submit a pull request!
-
-## Acknowledgements
-
-- **LangChain**: Used for text processing, embeddings, and chaining LLMs.
-- **Hugging Face**: Provides models and infrastructure for LLMs.
-- **Streamlit**: Framework for building interactive web applications.
-- **PyPDF2**: PDF file processing library.
-- **Faiss**: Efficient similarity search and clustering of dense vectors used in code without RAG implementation .
-- **ChromaDB**: Vector store for fast and scalable vector similarity search.
-- **ChatOllama**: Framework for building conversational agents.
-- **Ollama's Mistral Model**: LLM used for question-answering tasks.
-- **LLMChain**: For chaining LLMs in the processing pipeline.
-- **Scikit-learn**: Machine learning library for the TfidfVectorizer used in embedding generation.
-- **Pickle**: Python module for serializing and deserializing Python object structures, used for saving and loading model data.
-- **Paper Inspiration** : [RAG For knowledge-Intensive NLP Tasks](https://arxiv.org/abs/2005.11401) 
-
-## Contact
-
-For questions, issues, or suggestions, contact [Vvslaxman](mailto:vvslaxman14@gmail.com).
-
+- **GitHub**: [Vvslaxman](https://github.com/Vvslaxman)
+- **Email**: vvslaxman14@gmail.com
