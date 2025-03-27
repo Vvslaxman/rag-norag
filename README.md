@@ -104,7 +104,7 @@ streamlit run app.py
 
 Once running:
 
-- Open your browser and navigate to `http://localhost:5000`
+- Open your browser and navigate to `http://localhost:8080`
 - Enter a query in the chatbot UI
 - Select either RAG or Non-RAG mode
 - Compare the results side by side
