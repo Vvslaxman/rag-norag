@@ -1,136 +1,312 @@
-# ChatPDF
 
-ChatPDF is a project designed to explore and implement various Language Model (LLM) architectures and techniques, focusing on Retrieval-Augmented Generation (RAG) and different embedding strategies. It includes implementations using local RAG with FastEmbedEmbeddings and a version with RAG using Hugging Face Hub for embeddings.
 
-## Features
+# ChatPDF.ai: Document Q&A with RAG and Non-RAG Approaches
+## Table of Contents  
+- [Project Overview](#project-overview)  
+- [How It Works](#how-it-works)  
+- [Technical Architecture](#technical-architecture)  
+  - [Deepseek R1-1.5B (RAG) Approach](#deepseek-r1-15b-rag-approach)  
+  - [HuggingFace Flan-T5 (Non-RAG) Approach](#huggingface-flan-t5-non-rag-approach)
+- [Directory Structure](#directory-structure)    
+- [Utility Functions](#utility-functions)  
+- [Comparison of RAG vs. Non-RAG](#comparison-of-rag-vs-non-rag-approaches)  
+- [How to Run the Application](#how-to-run-the-application)  
+- [User Interface Screenshots](#user-interface-screenshots)
+- [Performance Benchmarks](#performance-benchmarks)
+- [Code Structure and Key Components](#code-structure-and-key-components)
+- [Performance Considerations](#performance-considerations)
+- [Known Limitations](known-limitations)
+- [Future Improvements](#future-improvements)  
 
-# 1)  Retrieval-Augmented Generation (RAG):
+## Project Overview
 
-   - Local RAG Implementation: Uses FastEmbedEmbeddings for local embedding and retrieval.
-   - Vector Store: Utilizes ChromaDB and Faiss-cpu for storing and retrieving document embeddings based on similarity scores.
-# 2)  Hugging Face Hub Integration:
+ChatPDF.ai is a Streamlit application that enables users to ask questions about their PDF documents. The application offers two different approaches for document question-answering:
 
-   - Implements LLMs using models from Hugging Face Hub, specifically the google/flan-t5-large model for efficient and accurate response generation.
-# 3)  PDF Ingestion and Processing:
+1. **Deepseek R1-1.5B (RAG)**: Uses Retrieval-Augmented Generation with the Deepseek model
+2. **HuggingFace Flan-T5 (Non-RAG)**: Uses direct LLM answering with Flan-T5 large model
 
-   - Allows users to upload PDF documents, which are then processed to extract text.
-   - The extracted text is split into manageable chunks using RecursiveCharacterTextSplitter.
-# 4) Interactive Chat Interface:
 
-   - Provides a user-friendly interface for uploading documents and querying their content.
-   - Users can ask questions related to the uploaded PDF documents and receive concise, relevant answers.
-# 5) Visual Feedback:
+## How It Works
 
-   - Incorporates spinners and other visual indicators to show processing progress during document ingestion and query handling.
-## Requirements
+The application follows these main steps:
 
-- Python 3.6+
-- Streamlit
-- LangChain
-- PyPDF2
-- Faiss
-- Chromadb
-- ChatOllama
-- Mistral
-- HuggingFaceHub
-- LLMChain
-- scikit-learn
-- Streamlit Extras
-- Dotenv
-- Pickle
-  
-## Installation
+1. **Document Processing**: Upload PDF files to create a knowledge base
+2. **Query Processing**: Ask questions about the content in natural language
+3. **Response Generation**: Get answers based on the selected approach
 
-1. Clone the repository:
+## Technical Architecture
+![Architecture deepseek](deepseek_RAG_PDF_Chatbot/architecture.jpg)
+### Deepseek R1-1.5B (RAG) Approach
+
+This approach implements Retrieval-Augmented Generation:
+
+```python
+# From test.py - RAG implementation with Deepseek
+embeddings = OllamaEmbeddings(model="nomic-embed-text")
+vector_store = Chroma.from_documents(splits, embeddings, persist_directory="./chroma_db")
+st.session_state.retriever = vector_store.as_retriever(search_type="mmr", search_kwargs={"k": 3})
+
+# When generating answers
+llm = ChatOllama(model="deepseek-r1:1.5b", temperature=0.3)
+qa_chain = RetrievalQA.from_chain_type(llm, retriever=st.session_state.retriever, chain_type="stuff")
+response = qa_chain.invoke({"query": prompt})
+answer = response["result"]
+```
+
+### HuggingFace Flan-T5 (Non-RAG) Approach
+
+This approach uses a more direct LLM answering technique:
+
+```python
+# From test.py - HuggingFace Non-RAG implementation
+embeddings = HuggingFaceEmbeddings()
+faiss_index = FAISS.from_texts(chunks, embeddings)
+st.session_state.retriever = faiss_index.as_retriever()
+
+# Prompt template for HuggingFace
+prompt_template = PromptTemplate(
+    input_variables=["context", "question"],
+    template="Context: {context}\n\nQuestion: {question}\n\nAnswer:"
+)
+
+# When generating answers
+search_results = st.session_state.retriever.get_relevant_documents(prompt)
+context = "\n\n".join([doc.page_content for doc in search_results])
+answer = st.session_state.huggingface_chain.run({"context": context, "question": prompt})
+```
+
+## Directory Structure
+```bash
+Directory structure:
+└── vvslaxman-rag-norag/
+    ├── README.md
+    ├── app.py
+    ├── pyproject.toml
+    ├── rag.py
+    ├── requirements.txt
+    ├── run.sh
+    ├── secrets.toml
+    └── deepseek_RAG_PDF_Chatbot/
+        ├── chatbot.py
+        ├── requirements.txt
+        ├── test.py
+        ├── utils.py
+        ├── UI_ss/
+        │   ├── Deepseek/
+        │   └── HF/
+        ├── __pycache__/
+        └── chroma_db/
+            ├── chroma.sqlite3
+            └── a553d286-b93e-45ff-940f-027d1c60a27a/
+                ├── data_level0.bin
+                ├── header.bin
+                ├── length.bin
+                └── link_lists.bin
+
+```
+## Utility Functions
+
+The application uses utility functions defined in `utils.py` for document processing:
+
+```python
+# From utils.py - Document processing
+def process_documents(pdfs):
+    # Create temporary directory for PDF storage
+    with tempfile.TemporaryDirectory() as temp_dir:
+        # Save uploaded PDFs to temp directory
+        pdf_paths = []
+        for pdf in pdfs:
+            path = os.path.join(temp_dir, pdf.name)
+            with open(path, "wb") as f:
+                f.write(pdf.getbuffer())
+            pdf_paths.append(path)
+        
+        # Load the documents
+        documents = []
+        for path in pdf_paths:
+            loader = PDFPlumberLoader(path)
+            documents.extend(loader.load())
+        
+        # Split documents into chunks
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=1200,  
+            chunk_overlap=150  
+        )
+        splits = text_splitter.split_documents(documents)
+        
+        # Create embeddings and vector store
+        embeddings = OllamaEmbeddings(model="nomic-embed-text")
+        vector_store = Chroma.from_documents(
+            documents=splits,
+            embedding=embeddings,
+            persist_directory="./chroma_db"
+        )
+        
+        return vector_store
+```
+
+## Comparison of RAG vs. Non-RAG Approaches
+
+| Feature | Deepseek R1-1.5B (RAG) | HuggingFace Flan-T5 (Non-RAG) |
+|---------|------------------------|--------------------------------|
+| Embeddings | OllamaEmbeddings with nomic-embed-text | HuggingFaceEmbeddings |
+| Vector Store | Chroma | FAISS |
+| LLM | Deepseek R1:1.5b | Flan-T5 large |
+| Retrieval | MMR search with k=3 | Standard retrieval |
+| Context Integration | Integrated within RetrievalQA chain | Manual via prompt template |
+
+## How to Run the Application
+
+1. **Install Dependencies**:
    ```bash
-   git clone https://github.com/your_username/ChatPDF.git
-   cd ChatPDF
-   ```
-
-2. Install dependencies:
-   You can add the entire Tech stack/Requirements in a requirements.txt file :
-   ```bash 
    pip install -r requirements.txt
    ```
 
-3. Set up environment variables:
-   - Create a `.env` file in the project root directory.
-   - Add your Hugging Face Hub API token:
-     ```
-     HUGGINGFACEHUB_API_TOKEN=your_api_token_here
-     ```
+2. **Environment Setup**:
+   - Ensure Ollama is installed and running for the RAG approach
+   ```bash
+   ollama serve
+   ```
+   - Set up HuggingFace API token for the Non-RAG approach:
+   ```bash
+   export HUGGINGFACEHUB_API_TOKEN=your_token_here
+   ```
 
-## Usage
+3. **Run the Application**:
+   ```bash
+   streamlit run test.py
+   ```
 
-### 1. Running the App
+## User Interface Screenshots
 
-To run the ChatPDF application:
+Here's what the application looks like when running:
 
-```bash
-streamlit run app.py
-```
-### 2. PDF Ingestion and Querying:
+1. **Main Interface**:
+   
+   <div style="display: flex; justify-content: space-between;">
+       <img src="deepseek_RAG_PDF_Chatbot/UI_ss/HF/im_1.png" alt="UI-HF" width="45%" height="45%" />
+   </div>
 
-   - Upload any PDF document through the provided interface.
-   - Ask questions related to the content of the uploaded PDF.
-### Switching Between Implementations
+   
+   The main interface features:
+   - PDF document uploader in the sidebar
+   - Chat interface in the main panel
+   - Model selection radio buttons
+   - Create Personalised Knowledge Base
+   - Switch between models seamlessly but the catch here is the trained data for each approach will be different cant be restired after switching
 
-> **Local RAG Implementation (FastEmbedEmbeddings)**:
-  - UnComment lines from 2 to 88 in `app.py`.
-  - Uncomment lines from 2 to 61 in `rag.py`.
+3. **Knowledge Base Creation**:
+   <div style="display: flex; justify-content: space-between;">
+       <img src="deepseek_RAG_PDF_Chatbot/UI_ss/HF/im_4.png" alt="Switching approaches-HF" width="25%" height="30%" />
+       <img src="deepseek_RAG_PDF_Chatbot/UI_ss/Deepseek/imd_2.png" alt="Switching approaches-Deepseek" width="25%" height="30%" />
+   </div>
+   
+   When creating the knowledge base, users will see step-by-step feedback:
+   ```
+   ### Step 1: Loading and parsing PDFs 📄
+   ✅ PDFs loaded successfully!
+   
+   ### Step 2: Splitting documents into chunks 🔄
+   ✅ Documents split into chunks!
+   
+   ### Step 3: Creating embeddings using Ollama 🧠
+   ✅ Embeddings created using Ollama!
+   
+   ✅ Knowledge Base Created in 5.23 seconds
+   ```
 
-> **Local RAG Implementation (Hugging Face Hub)**:
-  - UnComment lines from 91 to 228 in `app.py`.
-  - Uncomment lines from 67 to 137 in `rag.py`.
-# For one implementation to be performed comment those above mentioned lines of other implementation and uncomment required accordingly .
-## Results
+4. **Chat Interaction**:
+   <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+       <img src="deepseek_RAG_PDF_Chatbot/UI_ss/Deepseek/imd_3.png" alt="Chat Interaction 1" width="45%" />
+       <img src="deepseek_RAG_PDF_Chatbot/UI_ss/Deepseek/imd_4.png" alt="Chat Interaction 2" width="45%" />
+       <img src="deepseek_RAG_PDF_Chatbot/UI_ss/Deepseek/imd_5.png" alt="Chat Interaction 3" width="45%" />
+       <img src="deepseek_RAG_PDF_Chatbot/UI_ss/Deepseek/imd_6.png" alt="Chat Interaction 4" width="45%" />
+   </div>
+   
+   The chat interface shows:
+   - User questions in the user bubble
+   - AI responses in the assistant bubble
+   - Time taken to generate responses
+   - "Copy Answer to Clipboard" button for convenient copying
 
-### RAG Implementation (with FastEmbedEmbeddings)
+## Performance Benchmarks  
 
-![Result with RAG](mistral.png)
+| Model | Knowledge Base Creation Time (10-page PDF) | Query Response Time |
+|-------|--------------------------------|-----------------|
+| Deepseek R1-1.5B (RAG) | ~15.23 sec | ~18.8 sec |
+| HuggingFace Flan-T5 (Non-RAG) | ~24.85 sec | ~22.1 sec |
 
+*Note: Times may vary based on document size and system hardware.*
 
-### Without RAG (using Hugging Face Hub)
+## Code Structure and Key Components
 
-![Result without RAG](hfh.png)
+The application is structured around these main components:
 
-## Code Structure
+1. **Session State Management**:
+   ```python
+   # Initialize session state
+   if "selected_model" not in st.session_state:
+       st.session_state.selected_model = "Deepseek R1-1.5B (RAG)"
+   if "messages" not in st.session_state:
+       st.session_state.messages = []
+   if "vector_store" not in st.session_state:
+       st.session_state.vector_store = None
+   # ...additional state variables
+   ```
 
-- `app.py`: Main application file controlling the Streamlit interface and logic.
-- `rag.py`: Contains the `ChatPDF` class implementing local RAG with FastEmbedEmbeddings.
-- `results/`: Directory containing result images.
-- `__pycache__/`, `.pkl` files, `run.sh`, `pyproject.toml`: Supporting files and artifacts.
+2. **Approach Details**:
+   ```python
+   approach_details = {
+       "Deepseek R1-1.5B (RAG)": {
+           "description": "*Retrieval-Augmented Generation (RAG)* with Deepseek R1-1.5B.",
+           "tech_stack": "- *ChatOllama* for answering queries\n- *OllamaEmbeddings* for document embeddings\n- *Chroma Vector Store* for retrieval",
+       },
+       "HuggingFace Flan-T5 (Non-RAG)": {
+           "description": "*Direct LLM Answering (Non-RAG)* with Flan-T5 large.",
+           "tech_stack": "- *Hugging Face Flan-T5* for response generation\n- *FAISS Vector Store* for retrieval\n- *LLMChain* for query processing",
+       },
+   }
+   ```
 
-## Detailed Code Overview
+3. **Model Switching Logic**:
+   ```python
+   # Detect approach switch
+   if new_model != st.session_state.selected_model:
+       st.warning(f"⚠ You selected a different approach: *{st.session_state.selected_model} → {new_model}*")
+       if st.button("✅ Confirm & Switch"):
+           st.session_state.selected_model = new_model
+           st.session_state.messages = []  # Clear past messages
+           st.session_state.vector_store = None
+           st.session_state.retriever = None
+           st.session_state.qa_chain = None
+           st.session_state.huggingface_chain = None
+           st.rerun()
+   ```
 
-### `app.py`
+## Performance Considerations
 
-This file initializes the Streamlit application, handles PDF ingestion, text processing, embeddings generation, and user interactions. It integrates with Hugging Face Hub for LLM and provides an interface to switch between RAG implementations.
+- The application measures and displays the time taken for knowledge base creation and query answering
+- Chunk size and overlap parameters are tuned for optimal retrieval:
+  ```python
+  text_splitter = RecursiveCharacterTextSplitter(chunk_size=1200, chunk_overlap=150)
+  ```
+- Maximum Marginal Relevance (MMR) search is used in the RAG approach to improve result diversity:
+  ```python
+  retriever = vector_store.as_retriever(search_type="mmr", search_kwargs={"k": 3})
+  ```
+## Known Limitations  
+1. **Switching Models Resets Knowledge Base**  
+   - If you switch from **Deepseek (RAG)** to **Flan-T5 (Non-RAG)**, the previous knowledge base will be lost.  
+2. **Handling Large PDFs**  
+   - Large PDFs may take longer to process due to chunking and embedding time.  
+3. **Non-RAG Model is More Prone to Hallucination**  
+   - Since Flan-T5 does not use document retrieval, responses may sometimes be less accurate.  
 
-### `rag.py`
+## Future Improvements
 
-Defines the `ChatPDF` class utilizing LangChain components for PDF ingestion, text splitting, embedding generation with FastEmbedEmbeddings, and local RAG implementation.
-
-## Contributing
-
-Contributions are welcome! Please fork the repository, create a feature branch, commit your changes, and submit a pull request!
-
-## Acknowledgements
-
-- **LangChain**: Used for text processing, embeddings, and chaining LLMs.
-- **Hugging Face**: Provides models and infrastructure for LLMs.
-- **Streamlit**: Framework for building interactive web applications.
-- **PyPDF2**: PDF file processing library.
-- **Faiss**: Efficient similarity search and clustering of dense vectors used in code without RAG implementation .
-- **ChromaDB**: Vector store for fast and scalable vector similarity search.
-- **ChatOllama**: Framework for building conversational agents.
-- **Ollama's Mistral Model**: LLM used for question-answering tasks.
-- **LLMChain**: For chaining LLMs in the processing pipeline.
-- **Scikit-learn**: Machine learning library for the TfidfVectorizer used in embedding generation.
-- **Pickle**: Python module for serializing and deserializing Python object structures, used for saving and loading model data.
-- **Paper Inspiration** : [RAG For knowledge-Intensive NLP Tasks](https://arxiv.org/abs/2005.11401) 
-
-## Contact
-
-For questions, issues, or suggestions, contact [Vvslaxman](mailto:vvslaxman14@gmail.com).
+1. Add caching for faster repeated queries
+2. Implement document source attribution in responses
+3. Support for additional file formats beyond PDF
+4. Add session management to save chat history
+5. Generation of Project code implemenation
 
