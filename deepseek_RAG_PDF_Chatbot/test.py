@@ -132,8 +132,8 @@ with st.sidebar:
                     )
 
                     # *Initialize HuggingFace Chain*
-                    huggingface_llm = HuggingFaceHub(repo_id="google/flan-t5-large", huggingfacehub_api_token=huggingfacehub_api_token, model_kwargs={"temperature": 0.0})
-                    huggingface_chain = LLMChain(llm=huggingface_llm, prompt=prompt_template)
+                    huggingface_llm = HuggingFaceHub(repo_id="google/flan-t5-large", huggingfacehub_api_token=huggingfacehub_api_token, model_kwargs={"temperature": 0.5, "max_length": 512})
+                    huggingface_chain = LLMChain(llm=huggingface_llm, prompt=prompt_template, output_parser=StrOutputParser())
                     st.session_state.huggingface_chain = huggingface_chain
                     
                     st.markdown("✅ Embeddings created using HuggingFace!")
