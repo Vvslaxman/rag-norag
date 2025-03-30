@@ -13,7 +13,9 @@ from langchain.vectorstores import FAISS
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.prompts import PromptTemplate
 from PyPDF2 import PdfReader
+from langchain.schema.output_parser import StrOutputParser 
 import faiss
+import pyperclip  # to copy text to clipboard
 
 # Initialize session state
 if "selected_model" not in st.session_state:
@@ -121,15 +123,16 @@ with st.sidebar:
                     embeddings = HuggingFaceEmbeddings()
                     faiss_index = FAISS.from_texts(chunks, embeddings)
                     st.session_state.retriever = faiss_index.as_retriever()
+                    huggingfacehub_api_token = os.getenv("HUGGINGFACEHUB_API_TOKEN")
                     
                     # *Create a Prompt Template* for HuggingFace
                     prompt_template = PromptTemplate(
                         input_variables=["context", "question"],
-                        template="Answer the following question based on the provided context: {context}\nQuestion: {question}\nAnswer:"
+                        template="Context: {context}\n\nQuestion: {question}\n\nAnswer:"
                     )
 
                     # *Initialize HuggingFace Chain*
-                    huggingface_llm = HuggingFaceHub(repo_id="google/flan-t5-large", model_kwargs={"temperature": 0.0})
+                    huggingface_llm = HuggingFaceHub(repo_id="google/flan-t5-large", huggingfacehub_api_token=huggingfacehub_api_token, model_kwargs={"temperature": 0.0})
                     huggingface_chain = LLMChain(llm=huggingface_llm, prompt=prompt_template)
                     st.session_state.huggingface_chain = huggingface_chain
                     
@@ -145,7 +148,7 @@ st.markdown(f"*Using {st.session_state.selected_model}*")
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         if "<think>" in message["content"]:  # ✅ Highlight <think>...</think>
-            formatted_content = message["content"].replace("<think>", "🧠 ").replace("</think>", "")
+            formatted_content = message["content"].replace("<think>", "<span style='color: blue;'>🧠 ").replace("</think>", "</span>")
             st.markdown(formatted_content, unsafe_allow_html=True)
         else:
             st.markdown(message["content"])
@@ -168,16 +171,28 @@ if prompt := st.chat_input("🔎 Ask about your documents"):
                     answer = "❗ Please create a knowledge base first."
 
             else:  # HuggingFace (Non-RAG)
-                if st.session_state.retriever:
-                    context = "\n\n".join([doc.page_content for doc in st.session_state.retriever.get_relevant_documents(prompt)])
-                    answer = st.session_state.huggingface_chain.run({"context": context, "question": prompt})
+                if st.session_state.huggingface_chain:
+                    search_results = st.session_state.retriever.get_relevant_documents(prompt)
+                    context = "\n\n".join([doc.page_content for doc in search_results])
+                    answer = st.session_state.huggingface_chain.run({"context": context, "question": prompt}) 
                 else:
                     answer = "❗ Please create a knowledge base first."
 
             elapsed_time = time.time() - start_time
             st.markdown(f"⏳ *Time Taken:* {elapsed_time:.2f} seconds")
+            
+            # Display answer
             if "<think>" in answer:
                 answer = answer.replace("<think>", "🧠 ").replace("</think>", "")  # ✅ Highlight <think>...<think/>
-            st.markdown(answer)
+                formatted_answer = f"<span style='color: blue;'>{answer}</span>"
+            else:
+                formatted_answer = answer
+
+            # Display the response with the copy to clipboard button
+            st.markdown(formatted_answer, unsafe_allow_html=True)
+
+            # Copy to clipboard button
+            st.button("Copy Answer to Clipboard", on_click=lambda: pyperclip.copy(answer))
 
     st.session_state.messages.append({"role": "assistant", "content": answer})
+
