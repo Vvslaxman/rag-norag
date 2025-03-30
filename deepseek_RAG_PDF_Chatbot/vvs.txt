@@ -34,52 +34,52 @@ if "huggingface_chain" not in st.session_state:
 # Approach Details
 approach_details = {
     "Deepseek R1-1.5B (RAG)": {
-        "description": "*Retrieval-Augmented Generation (RAG)* with Deepseek R1-1.5B.",
-        "tech_stack": "- *ChatOllama* for answering queries\n- *OllamaEmbeddings* for document embeddings\n- *Chroma Vector Store* for retrieval",
+        "description": "**Retrieval-Augmented Generation (RAG)** with Deepseek R1-1.5B.",
+        "tech_stack": "- **ChatOllama** for answering queries\n- **OllamaEmbeddings** for document embeddings\n- **Chroma Vector Store** for retrieval",
     },
     "HuggingFace Flan-T5 (Non-RAG)": {
-        "description": "*Direct LLM Answering (Non-RAG)* with Flan-T5 large.",
-        "tech_stack": "- *Hugging Face Flan-T5* for response generation\n- *FAISS Vector Store* for retrieval\n- *LLMChain* for query processing",
+        "description": "**Direct LLM Answering (Non-RAG)** with Flan-T5 large.",
+        "tech_stack": "- **Hugging Face Flan-T5** for response generation\n- **FAISS Vector Store** for retrieval\n- **LLMChain** for query processing",
     },
 }
 
 # Sidebar for Model Selection & File Upload
 with st.sidebar:
-    st.markdown("## *Select Approach* 🎯")
+    st.markdown("## **Select Approach** ?")
     new_model = st.radio("Choose a model:", ["Deepseek R1-1.5B (RAG)", "HuggingFace Flan-T5 (Non-RAG)"])
 
     # Detect approach switch
     if new_model != st.session_state.selected_model:
-        st.warning(f"⚠ You selected a different approach: *{st.session_state.selected_model} → {new_model}*")
-        if st.button("✅ Confirm & Switch"):
+        st.warning(f"?? You selected a different approach: **{st.session_state.selected_model} ? {new_model}**")
+        if st.button("? Confirm & Switch"):
             st.session_state.selected_model = new_model
             st.session_state.messages = []  # Clear past messages
             st.session_state.vector_store = None
             st.session_state.retriever = None
             st.session_state.qa_chain = None
             st.session_state.huggingface_chain = None
-            st.rerun()  # ✅ Fixed: Correct method for reloading Streamlit
+            st.rerun()  # ? Fixed: Correct method for reloading Streamlit
 
     # Show selected approach details
-    st.markdown(f"### *🚀 {st.session_state.selected_model}*")
+    st.markdown(f"### **? {st.session_state.selected_model}**")
     st.info(approach_details[st.session_state.selected_model]["description"])
-    st.markdown(f"#### *🛠 Tech Stack Used:*")
+    st.markdown(f"#### **?? Tech Stack Used:**")
     st.markdown(approach_details[st.session_state.selected_model]["tech_stack"])
 
     # File Upload
-    st.markdown("## *📄 Upload PDFs*")
+    st.markdown("## **? Upload PDFs**")
     pdfs = st.file_uploader("Upload PDF documents", type="pdf", accept_multiple_files=True)
     
-    if st.button("📚 Create Knowledge Base"):
+    if st.button("? Create Knowledge Base"):
         if not pdfs:
-            st.warning("⚠ Please upload PDF documents first!")
+            st.warning("?? Please upload PDF documents first!")
         else:
-            with st.spinner("Processing documents... ⏳"):
+            with st.spinner("Processing documents... ?"):
                 start_time = time.time()
 
-                # *Step-by-Step Feedback for Knowledge Base Creation*
+                # **Step-by-Step Feedback for Knowledge Base Creation**
                 # Step 1: Loading and parsing PDFs
-                st.markdown("### Step 1: Loading and parsing PDFs 📄")
+                st.markdown("### Step 1: Loading and parsing PDFs ?")
                 pdf_paths = []
                 with tempfile.TemporaryDirectory() as temp_dir:
                     for pdf in pdfs:
@@ -93,25 +93,25 @@ with st.sidebar:
                         loader = PDFPlumberLoader(path)
                         documents.extend(loader.load())
                 
-                st.markdown("✅ PDFs loaded successfully!")
+                st.markdown("? PDFs loaded successfully!")
 
                 # Step 2: Splitting Documents
-                st.markdown("### Step 2: Splitting documents into chunks 🔄")
+                st.markdown("### Step 2: Splitting documents into chunks ?")
                 text_splitter = RecursiveCharacterTextSplitter(chunk_size=1200, chunk_overlap=150)
                 splits = text_splitter.split_documents(documents)
-                st.markdown("✅ Documents split into chunks!")
+                st.markdown("? Documents split into chunks!")
 
                 # Step 3: Create Embeddings and Vector Store
                 if st.session_state.selected_model.startswith("Deepseek"):
-                    st.markdown("### Step 3: Creating embeddings using Ollama 🧠")
+                    st.markdown("### Step 3: Creating embeddings using Ollama ?")
                     embeddings = OllamaEmbeddings(model="nomic-embed-text")
                     vector_store = Chroma.from_documents(splits, embeddings, persist_directory="./chroma_db")
                     st.session_state.vector_store = vector_store
                     st.session_state.retriever = vector_store.as_retriever(search_type="mmr", search_kwargs={"k": 3})
-                    st.markdown("✅ Embeddings created using Ollama!")
+                    st.markdown("? Embeddings created using Ollama!")
 
                 else:  # HuggingFace
-                    st.markdown("### Step 3: Creating embeddings using HuggingFace 🧠")
+                    st.markdown("### Step 3: Creating embeddings using HuggingFace ?")
                     pdf_text = ""
                     for pdf in pdfs:
                         pdf_reader = PdfReader(pdf)
@@ -122,41 +122,41 @@ with st.sidebar:
                     faiss_index = FAISS.from_texts(chunks, embeddings)
                     st.session_state.retriever = faiss_index.as_retriever()
                     
-                    # *Create a Prompt Template* for HuggingFace
+                    # **Create a Prompt Template** for HuggingFace
                     prompt_template = PromptTemplate(
                         input_variables=["context", "question"],
                         template="Answer the following question based on the provided context: {context}\nQuestion: {question}\nAnswer:"
                     )
 
-                    # *Initialize HuggingFace Chain*
-                    huggingface_llm = HuggingFaceHub(repo_id="google/flan-t5-large", model_kwargs={"temperature": 0.0})
+                    # **Initialize HuggingFace Chain**
+                    huggingface_llm = HuggingFaceHub(repo_id="google/flan-t5-xxl", model_kwargs={"temperature": 0.0})
                     huggingface_chain = LLMChain(llm=huggingface_llm, prompt=prompt_template)
                     st.session_state.huggingface_chain = huggingface_chain
                     
-                    st.markdown("✅ Embeddings created using HuggingFace!")
+                    st.markdown("? Embeddings created using HuggingFace!")
 
                 elapsed_time = time.time() - start_time
-                st.success(f"✅ Knowledge Base Created in {elapsed_time:.2f} seconds")
+                st.success(f"? Knowledge Base Created in {elapsed_time:.2f} seconds")
 
 # Chat Interface
-st.title("💬 ChatPDF.ai")
-st.markdown(f"*Using {st.session_state.selected_model}*")
+st.title("? ChatPDF.ai")
+st.markdown(f"**Using {st.session_state.selected_model}**")
 
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
-        if "<think>" in message["content"]:  # ✅ Highlight <think>...</think>
-            formatted_content = message["content"].replace("<think>", "🧠 ").replace("</think>", "")
+        if "<think>" in message["content"]:  # ? Highlight <think>...</think>
+            formatted_content = message["content"].replace("<think>", "? *").replace("</think>", "*")
             st.markdown(formatted_content, unsafe_allow_html=True)
         else:
             st.markdown(message["content"])
 
-if prompt := st.chat_input("🔎 Ask about your documents"):
+if prompt := st.chat_input("? Ask about your documents"):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
-        with st.spinner("Fetching answer... ⏳"):
+        with st.spinner("Fetching answer... ?"):
             start_time = time.time()
             if st.session_state.selected_model.startswith("Deepseek"):
                 if st.session_state.vector_store:
@@ -165,19 +165,19 @@ if prompt := st.chat_input("🔎 Ask about your documents"):
                     response = qa_chain.invoke({"query": prompt})
                     answer = response["result"]
                 else:
-                    answer = "❗ Please create a knowledge base first."
+                    answer = "? Please create a knowledge base first."
 
             else:  # HuggingFace (Non-RAG)
                 if st.session_state.retriever:
                     context = "\n\n".join([doc.page_content for doc in st.session_state.retriever.get_relevant_documents(prompt)])
                     answer = st.session_state.huggingface_chain.run({"context": context, "question": prompt})
                 else:
-                    answer = "❗ Please create a knowledge base first."
+                    answer = "? Please create a knowledge base first."
 
             elapsed_time = time.time() - start_time
-            st.markdown(f"⏳ *Time Taken:* {elapsed_time:.2f} seconds")
+            st.markdown(f"? **Time Taken:** {elapsed_time:.2f} seconds")
             if "<think>" in answer:
-                answer = answer.replace("<think>", "🧠 ").replace("</think>", "")  # ✅ Highlight <think>...<think/>
+                answer = answer.replace("<think>", "? *").replace("</think>", "*")  # ? Highlight <think>...<think/>
             st.markdown(answer)
 
     st.session_state.messages.append({"role": "assistant", "content": answer})
