@@ -310,3 +310,6 @@ The application is structured around these main components:
 4. Add session management to save chat history
 5. Generation of Project code implemenation
 
+## Contact
+
+For questions, issues, or suggestions, contact [Morampudi-Buddu-Uday](mailto:morampudi.uday19@gmail.com), [Poojith-Chowdary](mailto:poojithchowdary5500@gmail.com), [Vvslaxman](mailto:vvslaxman14@gmail.com)
